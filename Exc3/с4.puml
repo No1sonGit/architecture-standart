@@ -1,0 +1,30 @@
+@startuml
+
+actor Клиент
+actor Менеджер
+actor "Сотрудник Бэк-офиса" as BackOfficeEmployee
+
+rectangle "Интернет-банк" as InternetBank #DDDDDD
+rectangle "Сайт" as Website #DDDDDD
+rectangle "Кол-центр" as ContactCenter #DDDDDD
+rectangle "АБС" as CoreBanking #DDDDDD
+rectangle "CRM" as CRM #DDDDDD
+rectangle "Система шифрования" as Encryption #DDDDDD
+rectangle "База данных" as Database #DDDDDD
+rectangle "Kafka (Очереди сообщений)" as Messaging #DDDDDD
+
+Клиент --> InternetBank : Оформление заявки
+Клиент --> Website : Запрос информации
+Клиент --> ContactCenter : Звонок в кол-центр
+
+InternetBank --> CoreBanking : Подтверждение депозита
+Website --> ContactCenter : Передача заявки
+ContactCenter --> CRM : Фиксация обращения
+CoreBanking --> BackOfficeEmployee : Обработка заявки
+CoreBanking --> Database : Запись данных
+CoreBanking --> Messaging : Передача событий
+Messaging --> InternetBank : Уведомления клиента
+
+CoreBanking --> Encryption : Шифрование данных
+
+@enduml

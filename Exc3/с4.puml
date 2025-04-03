@@ -1,7 +1,7 @@
 @startuml
 
-actor Клиент
-actor Менеджер
+actor Клиент as Client
+actor Менеджер as Manager
 actor "Сотрудник Бэк-офиса" as BackOfficeEmployee
 
 rectangle "Интернет-банк" as InternetBank #DDDDDD
@@ -9,22 +9,24 @@ rectangle "Сайт" as Website #DDDDDD
 rectangle "Кол-центр" as ContactCenter #DDDDDD
 rectangle "АБС" as CoreBanking #DDDDDD
 rectangle "CRM" as CRM #DDDDDD
-rectangle "Система шифрования" as Encryption #DDDDDD
-rectangle "База данных" as Database #DDDDDD
 rectangle "Kafka (Очереди сообщений)" as Messaging #DDDDDD
+rectangle "Сервис Депозитов" as DepositService #lightgreen
 
-Клиент --> InternetBank : Оформление заявки
-Клиент --> Website : Запрос информации
-Клиент --> ContactCenter : Звонок в кол-центр
+Client --> InternetBank : Открыть депозит / Подать заявку
+Client --> Website : Подать заявку на депозит
+Client --> ContactCenter : Звонок в кол-центр
 
-InternetBank --> CoreBanking : Подтверждение депозита
-Website --> ContactCenter : Передача заявки
-ContactCenter --> CRM : Фиксация обращения
-CoreBanking --> BackOfficeEmployee : Обработка заявки
-CoreBanking --> Database : Запись данных
-CoreBanking --> Messaging : Передача событий
-Messaging --> InternetBank : Уведомления клиента
+InternetBank --> DepositService : Запрос на открытие/заявку депозита
+Website --> DepositService : Запрос на заявку депозита
 
-CoreBanking --> Encryption : Шифрование данных
+DepositService --> CoreBanking : Взаимодействие по депозиту (инфо, открытие счета)
+DepositService --> Messaging : Публикация событий о депозите
+DepositService --> ContactCenter : Создать задачу на обработку заявки с сайта
+
+ContactCenter --> CRM : Фиксация обращения/задачи
+CoreBanking --> BackOfficeEmployee : Обработка заявки на депозит (MVP)
+
+Messaging --> InternetBank : Подписка на события о депозитах
+CoreBanking --> Messaging : Публикация других бизнес-событий
 
 @enduml

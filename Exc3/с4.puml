@@ -1,0 +1,32 @@
+@startuml
+
+actor Клиент as Client
+actor Менеджер as Manager
+actor "Сотрудник Бэк-офиса" as BackOfficeEmployee
+
+rectangle "Интернет-банк" as InternetBank #DDDDDD
+rectangle "Сайт" as Website #DDDDDD
+rectangle "Кол-центр" as ContactCenter #DDDDDD
+rectangle "АБС" as CoreBanking #DDDDDD
+rectangle "CRM" as CRM #DDDDDD
+rectangle "Kafka (Очереди сообщений)" as Messaging #DDDDDD
+rectangle "Сервис Депозитов" as DepositService #lightgreen
+
+Client --> InternetBank : Открыть депозит / Подать заявку
+Client --> Website : Подать заявку на депозит
+Client --> ContactCenter : Звонок в кол-центр
+
+InternetBank --> DepositService : Запрос на открытие/заявку депозита
+Website --> DepositService : Запрос на заявку депозита
+
+DepositService --> CoreBanking : Взаимодействие по депозиту (инфо, открытие счета)
+DepositService --> Messaging : Публикация событий о депозите
+DepositService --> ContactCenter : Создать задачу на обработку заявки с сайта
+
+ContactCenter --> CRM : Фиксация обращения/задачи
+CoreBanking --> BackOfficeEmployee : Обработка заявки на депозит (MVP)
+
+Messaging --> InternetBank : Подписка на события о депозитах
+CoreBanking --> Messaging : Публикация других бизнес-событий
+
+@enduml
